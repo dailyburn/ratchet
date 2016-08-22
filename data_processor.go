@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/dailyburn/ratchet/data"
+	"github.com/plandem/ratchet/data"
 )
 
 // DataProcessor is the interface that should be implemented to perform data-related
@@ -13,16 +13,16 @@ import (
 // and then sending data on to the next stage of processing.
 type DataProcessor interface {
 	// ProcessData will be called for each data sent from the previous stage.
-	// ProcessData is called with a data.JSON instance, which is the data being received,
+	// ProcessData is called with a data.Payload instance, which is the data being received,
 	// an outputChan, which is the channel to send data to, and a killChan,
 	// which is a channel to send unexpected errors to (halting execution of the Pipeline).
-	ProcessData(d data.JSON, outputChan chan data.JSON, killChan chan error)
+	ProcessData(d data.Payload, outputChan chan data.Payload, killChan chan error)
 
 	// Finish will be called after the previous stage has finished sending data,
 	// and no more data will be received by this DataProcessor. Often times
 	// Finish can be an empty function implementation, but sometimes it is
 	// necessary to perform final data processing.
-	Finish(outputChan chan data.JSON, killChan chan error)
+	Finish(outputChan chan data.Payload, killChan chan error)
 }
 
 // dataProcessor is a type used internally to the Pipeline management
@@ -37,12 +37,12 @@ type dataProcessor struct {
 	chanBrancher
 	chanMerger
 	outputs    []DataProcessor
-	inputChan  chan data.JSON
-	outputChan chan data.JSON
+	inputChan  chan data.Payload
+	outputChan chan data.Payload
 }
 
 type chanBrancher struct {
-	branchOutChans []chan data.JSON
+	branchOutChans []chan data.Payload
 }
 
 func (dp *dataProcessor) branchOut() {
@@ -51,7 +51,7 @@ func (dp *dataProcessor) branchOut() {
 			for _, out := range dp.branchOutChans {
 				// Make a copy to ensure concurrent stages
 				// can alter data as needed.
-				dc := make(data.JSON, len(d))
+				dc := make(data.Payload, len(d))
 				copy(dc, d)
 				out <- dc
 			}
@@ -65,13 +65,13 @@ func (dp *dataProcessor) branchOut() {
 }
 
 type chanMerger struct {
-	mergeInChans []chan data.JSON
+	mergeInChans []chan data.Payload
 	mergeWait    sync.WaitGroup
 }
 
 func (dp *dataProcessor) mergeIn() {
 	// Start a merge goroutine for each input channel.
-	mergeData := func(c chan data.JSON) {
+	mergeData := func(c chan data.Payload) {
 		for d := range c {
 			dp.inputChan <- d
 		}
@@ -97,8 +97,8 @@ func (dp *dataProcessor) mergeIn() {
 // a new branching pipeline layout.
 func Do(processor DataProcessor) *dataProcessor {
 	dp := dataProcessor{DataProcessor: processor}
-	dp.outputChan = make(chan data.JSON)
-	dp.inputChan = make(chan data.JSON)
+	dp.outputChan = make(chan data.Payload)
+	dp.inputChan = make(chan data.Payload)
 
 	if isConcurrent(processor) {
 		dp.concurrency = processor.(ConcurrentDataProcessor).Concurrency()

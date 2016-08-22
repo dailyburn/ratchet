@@ -3,7 +3,7 @@ package ratchet
 import (
 	"time"
 
-	"github.com/dailyburn/ratchet/data"
+	"github.com/plandem/ratchet/data"
 )
 
 type executionStat struct {
@@ -25,12 +25,12 @@ func (s *executionStat) recordExecution(foo func()) {
 	s.totalExecutionTime += time.Now().Sub(st).Seconds()
 }
 
-func (s *executionStat) recordDataSent(d data.JSON) {
+func (s *executionStat) recordDataSent(d data.Payload) {
 	s.dataSentCounter++
 	s.totalBytesSent += len(d)
 }
 
-func (s *executionStat) recordDataReceived(d data.JSON) {
+func (s *executionStat) recordDataReceived(d data.Payload) {
 	s.dataReceivedCounter++
 	s.totalBytesReceived += len(d)
 }

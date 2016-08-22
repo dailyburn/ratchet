@@ -1,6 +1,8 @@
 package processors
 
-import "github.com/dailyburn/ratchet/data"
+import (
+	"github.com/plandem/ratchet/data"
+)
 
 // FuncTransformer executes the given function on each data
 // payload, sending the resuling data to the next stage.
@@ -8,20 +10,20 @@ import "github.com/dailyburn/ratchet/data"
 // While FuncTransformer is useful for simple data transformation, more
 // complicated tasks justify building a custom implementation of DataProcessor.
 type FuncTransformer struct {
-	transform        func(d data.JSON) data.JSON
+	transform        func(d data.Payload) data.Payload
 	Name             string // can be set for more useful log output
 	ConcurrencyLevel int    // See ConcurrentDataProcessor
 }
 
-func NewFuncTransformer(transform func(d data.JSON) data.JSON) *FuncTransformer {
+func NewFuncTransformer(transform func(d data.Payload) data.Payload) *FuncTransformer {
 	return &FuncTransformer{transform: transform}
 }
 
-func (t *FuncTransformer) ProcessData(d data.JSON, outputChan chan data.JSON, killChan chan error) {
+func (t *FuncTransformer) ProcessData(d data.Payload, outputChan chan data.Payload, killChan chan error) {
 	outputChan <- t.transform(d)
 }
 
-func (t *FuncTransformer) Finish(outputChan chan data.JSON, killChan chan error) {
+func (t *FuncTransformer) Finish(outputChan chan data.Payload, killChan chan error) {
 }
 
 func (t *FuncTransformer) String() string {

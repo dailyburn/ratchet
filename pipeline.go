@@ -7,7 +7,7 @@ import (
 	"os/signal"
 	"sync"
 
-	"github.com/dailyburn/ratchet/data"
+	"github.com/plandem/ratchet/data"
 	"github.com/dailyburn/ratchet/logger"
 	"github.com/dailyburn/ratchet/util"
 )
@@ -82,10 +82,10 @@ func (p *Pipeline) connectStages() {
 	for _, stage := range p.layout.stages {
 		for _, from := range stage.processors {
 			if from.outputs != nil {
-				from.branchOutChans = []chan data.JSON{}
+				from.branchOutChans = []chan data.Payload{}
 				for _, to := range p.dataProcessorOutputs(from) {
 					if to.mergeInChans == nil {
-						to.mergeInChans = []chan data.JSON{}
+						to.mergeInChans = []chan data.Payload{}
 					}
 					c := p.initDataChan()
 					from.branchOutChans = append(from.branchOutChans, c)
@@ -152,7 +152,7 @@ func (p *Pipeline) Run() (killChan chan error) {
 
 	for _, dp := range p.layout.stages[0].processors {
 		logger.Debug(p.Name, ": sending", StartSignal, "to", dp)
-		dp.inputChan <- data.JSON(StartSignal)
+		dp.inputChan <- data.Payload(StartSignal)
 		dp.Finish(dp.outputChan, killChan)
 		close(dp.inputChan)
 	}
@@ -172,15 +172,15 @@ func (p *Pipeline) Run() (killChan chan error) {
 	return killChan
 }
 
-func (p *Pipeline) initDataChans(length int) []chan data.JSON {
-	cs := make([]chan data.JSON, length)
+func (p *Pipeline) initDataChans(length int) []chan data.Payload {
+	cs := make([]chan data.Payload, length)
 	for i := range cs {
 		cs[i] = p.initDataChan()
 	}
 	return cs
 }
-func (p *Pipeline) initDataChan() chan data.JSON {
-	return make(chan data.JSON, p.BufferLength)
+func (p *Pipeline) initDataChan() chan data.Payload {
+	return make(chan data.Payload, p.BufferLength)
 }
 
 // func (p *Pipeline) String() string {

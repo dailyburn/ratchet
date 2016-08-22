@@ -3,7 +3,7 @@ package processors
 import (
 	"io"
 
-	"github.com/dailyburn/ratchet/data"
+	"github.com/plandem/ratchet/data"
 )
 
 // IoReaderWriter performs both the job of a IoReader and IoWriter.
@@ -26,14 +26,14 @@ func NewIoReaderWriter(reader io.Reader, writer io.Writer) *IoReaderWriter {
 	return &r
 }
 
-func (r *IoReaderWriter) ProcessData(d data.JSON, outputChan chan data.JSON, killChan chan error) {
-	r.ForEachData(killChan, func(d data.JSON) {
+func (r *IoReaderWriter) ProcessData(d data.Payload, outputChan chan data.Payload, killChan chan error) {
+	r.ForEachData(killChan, func(d data.Payload) {
 		r.IoWriter.ProcessData(d, outputChan, killChan)
 		outputChan <- d
 	})
 }
 
-func (r *IoReaderWriter) Finish(outputChan chan data.JSON, killChan chan error) {
+func (r *IoReaderWriter) Finish(outputChan chan data.Payload, killChan chan error) {
 }
 
 func (r *IoReaderWriter) String() string {

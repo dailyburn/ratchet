@@ -1,5 +1,6 @@
 package processors
 
+/*
 import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
@@ -44,3 +45,4 @@ func (w *S3Writer) Finish(outputChan chan data.JSON, killChan chan error) {
 func (w *S3Writer) String() string {
 	return "S3Writer"
 }
+*/

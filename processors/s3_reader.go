@@ -1,4 +1,5 @@
 package processors
+/*
 
 // http://docs.aws.amazon.com/sdk-for-go/api/service/s3/S3.html
 
@@ -86,3 +87,4 @@ func (r *S3Reader) processObject(obj *s3.GetObjectOutput, outputChan chan data.J
 func (r *S3Reader) String() string {
 	return "S3Reader"
 }
+*/
