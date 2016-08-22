@@ -24,7 +24,6 @@ type Pipeline struct {
 	PrintData    bool   // Set to true to log full data payloads (only in Debug logging mode).
 	timer        *util.Timer
 	wg           sync.WaitGroup
-	clone 		 data.PayloadClone
 }
 
 // NewPipeline creates a new pipeline ready to run the given DataProcessors.
@@ -100,7 +99,7 @@ func (p *Pipeline) connectStages() {
 	for _, stage := range p.layout.stages {
 		for _, dp := range stage.processors {
 			if dp.branchOutChans != nil {
-				dp.branchOut(p.clone)
+				dp.branchOut()
 			}
 			if dp.mergeInChans != nil {
 				dp.mergeIn()
@@ -147,14 +146,6 @@ func (p *Pipeline) runStages(killChan chan error) {
 func (p *Pipeline) Run() (killChan chan error) {
 	p.timer = util.StartTimer()
 	killChan = make(chan error)
-
-	if p.clone == nil {
-		p.clone = func(d data.Payload) (data.Payload) {
-			dc := make(data.Payload, len(d))
-			copy(dc, d)
-			return dc
-		}
-	}
 
 	p.connectStages()
 	p.runStages(killChan)

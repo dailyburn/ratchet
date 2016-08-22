@@ -5,6 +5,3 @@ package data
 // It's up to you what serializer to use
 //type Payload []byte
 type Payload []byte
-
-type PayloadClone func(Payload) (Payload)
-

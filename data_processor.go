@@ -45,13 +45,15 @@ type chanBrancher struct {
 	branchOutChans []chan data.Payload
 }
 
-func (dp *dataProcessor) branchOut(clone data.PayloadClone) {
+func (dp *dataProcessor) branchOut() {
 	go func() {
 		for d := range dp.outputChan {
 			for _, out := range dp.branchOutChans {
 				// Make a copy to ensure concurrent stages
 				// can alter data as needed.
-				out <- clone(d)
+				dc := make(data.Payload, len(d))
+				copy(dc, d)
+				out <- dc
 			}
 			dp.recordDataSent(d)
 		}
