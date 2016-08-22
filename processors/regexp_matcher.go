@@ -3,7 +3,7 @@ package processors
 import (
 	"regexp"
 
-	"github.com/dailyburn/ratchet/data"
+	"github.com/plandem/ratchet/data"
 	"github.com/dailyburn/ratchet/logger"
 	"github.com/dailyburn/ratchet/util"
 )
@@ -20,10 +20,10 @@ type RegexpMatcher struct {
 // NewRegexpMatcher returns a new RegexpMatcher initialized
 // with the given pattern to match.
 func NewRegexpMatcher(pattern string) *RegexpMatcher {
-	return &RegexpMatcher{pattern, false}
+	return &RegexpMatcher{pattern:pattern, DebugLog:false}
 }
 
-func (r *RegexpMatcher) ProcessData(d data.JSON, outputChan chan data.JSON, killChan chan error) {
+func (r *RegexpMatcher) ProcessData(d data.Payload, outputChan chan data.Payload, killChan chan error) {
 	matches, err := regexp.Match(r.pattern, d)
 	util.KillPipelineIfErr(err, killChan)
 	if r.DebugLog {
@@ -34,7 +34,7 @@ func (r *RegexpMatcher) ProcessData(d data.JSON, outputChan chan data.JSON, kill
 	}
 }
 
-func (r *RegexpMatcher) Finish(outputChan chan data.JSON, killChan chan error) {
+func (r *RegexpMatcher) Finish(outputChan chan data.Payload, killChan chan error) {
 }
 
 func (r *RegexpMatcher) String() string {
