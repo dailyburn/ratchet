@@ -1,4 +1,5 @@
 package processors
+/*
 
 import (
 	"golang.org/x/crypto/ssh"
@@ -80,3 +81,4 @@ func (w *SftpWriter) ensureInitialized(killChan chan error) {
 	w.file = file
 	w.initialized = true
 }
+*/

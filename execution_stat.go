@@ -25,14 +25,16 @@ func (s *executionStat) recordExecution(foo func()) {
 	s.totalExecutionTime += time.Now().Sub(st).Seconds()
 }
 
-func (s *executionStat) recordDataSent(d data.JSON) {
+func (s *executionStat) recordDataSent(d data.Payload) {
 	s.dataSentCounter++
-	s.totalBytesSent += len(d)
+	//TODO: think how to refactor
+	//s.totalBytesSent += len(d)
 }
 
-func (s *executionStat) recordDataReceived(d data.JSON) {
+func (s *executionStat) recordDataReceived(d data.Payload) {
 	s.dataReceivedCounter++
-	s.totalBytesReceived += len(d)
+	//TODO: think how to refactor
+	//s.totalBytesReceived += len(d)
 }
 
 func (s *executionStat) calculate() {

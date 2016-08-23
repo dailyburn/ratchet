@@ -20,21 +20,21 @@ type RegexpMatcher struct {
 // NewRegexpMatcher returns a new RegexpMatcher initialized
 // with the given pattern to match.
 func NewRegexpMatcher(pattern string) *RegexpMatcher {
-	return &RegexpMatcher{pattern, false}
+	return &RegexpMatcher{pattern:pattern, DebugLog:false}
 }
 
-func (r *RegexpMatcher) ProcessData(d data.JSON, outputChan chan data.JSON, killChan chan error) {
-	matches, err := regexp.Match(r.pattern, d)
+func (r *RegexpMatcher) ProcessData(d data.Payload, outputChan chan data.Payload, killChan chan error) {
+	matches, err := regexp.Match(r.pattern, data.Marshal(d))
 	util.KillPipelineIfErr(err, killChan)
 	if r.DebugLog {
-		logger.Debug("RegexpMatcher: checking if", string(d), "matches pattern", r.pattern, ". MATCH=", matches)
+		logger.Debug("RegexpMatcher: checking if", string(data.Marshal(d)), "matches pattern", r.pattern, ". MATCH=", matches)
 	}
 	if matches {
 		outputChan <- d
 	}
 }
 
-func (r *RegexpMatcher) Finish(outputChan chan data.JSON, killChan chan error) {
+func (r *RegexpMatcher) Finish(outputChan chan data.Payload, killChan chan error) {
 }
 
 func (r *RegexpMatcher) String() string {

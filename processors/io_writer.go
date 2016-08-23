@@ -22,19 +22,19 @@ func NewIoWriter(writer io.Writer) *IoWriter {
 	return &IoWriter{Writer: writer, AddNewline: false}
 }
 
-func (w *IoWriter) ProcessData(d data.JSON, outputChan chan data.JSON, killChan chan error) {
+func (w *IoWriter) ProcessData(d data.Payload, outputChan chan data.Payload, killChan chan error) {
 	var bytesWritten int
 	var err error
 	if w.AddNewline {
-		bytesWritten, err = fmt.Fprintln(w.Writer, string(d))
+		bytesWritten, err = fmt.Fprintln(w.Writer, string(data.Marshal(d)))
 	} else {
-		bytesWritten, err = w.Writer.Write(d)
+		bytesWritten, err = w.Writer.Write(data.Marshal(d))
 	}
 	util.KillPipelineIfErr(err, killChan)
 	logger.Debug("IoWriter:", bytesWritten, "bytes written")
 }
 
-func (w *IoWriter) Finish(outputChan chan data.JSON, killChan chan error) {
+func (w *IoWriter) Finish(outputChan chan data.Payload, killChan chan error) {
 }
 
 func (w *IoWriter) String() string {

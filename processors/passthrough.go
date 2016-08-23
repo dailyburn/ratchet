@@ -11,11 +11,11 @@ func NewPassthrough() *Passthrough {
 	return &Passthrough{}
 }
 
-func (r *Passthrough) ProcessData(d data.JSON, outputChan chan data.JSON, killChan chan error) {
+func (r *Passthrough) ProcessData(d data.Payload, outputChan chan data.Payload, killChan chan error) {
 	outputChan <- d
 }
 
-func (r *Passthrough) Finish(outputChan chan data.JSON, killChan chan error) {
+func (r *Passthrough) Finish(outputChan chan data.Payload, killChan chan error) {
 }
 
 func (r *Passthrough) String() string {

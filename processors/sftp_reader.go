@@ -1,5 +1,6 @@
 package processors
 
+/*
 import (
 	"github.com/dailyburn/ratchet/data"
 	"github.com/dailyburn/ratchet/util"
@@ -136,3 +137,4 @@ func (r *SftpReader) sendFile(path string, outputChan chan data.JSON, killChan c
 		util.KillPipelineIfErr(err, killChan)
 	}
 }
+*/

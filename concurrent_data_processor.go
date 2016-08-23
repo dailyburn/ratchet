@@ -41,12 +41,12 @@ type workSignal struct{}
 
 type result struct {
 	done       bool
-	data       []data.JSON
-	outputChan chan data.JSON
+	data       []data.Payload
+	outputChan chan data.Payload
 	open       bool
 }
 
-func (dp *dataProcessor) processData(d data.JSON, killChan chan error) {
+func (dp *dataProcessor) processData(d data.Payload, killChan chan error) {
 	logger.Debug("dataProcessor: processData", dp, "with concurrency =", dp.concurrency)
 	// If no concurrency is needed, simply call stage.ProcessData and return...
 	if dp.concurrency <= 1 {
@@ -60,12 +60,12 @@ func (dp *dataProcessor) processData(d data.JSON, killChan chan error) {
 	// wait for room in the queue
 	dp.workThrottle <- workSignal{}
 	logger.Debug("dataProcessor: processData", dp, "work obtained")
-	rc := make(chan data.JSON)
+	rc := make(chan data.Payload)
 	done := make(chan bool)
 	exit := make(chan bool)
 	// setup goroutine to handle result
 	go func() {
-		res := result{outputChan: dp.outputChan, data: []data.JSON{}, open: true}
+		res := result{outputChan: dp.outputChan, data: []data.Payload{}, open: true}
 		dp.Lock()
 		dp.workList.PushBack(&res)
 		dp.Unlock()

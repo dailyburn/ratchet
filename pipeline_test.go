@@ -5,9 +5,9 @@ import (
 	"os"
 	"strings"
 
+	"github.com/dailyburn/ratchet/logger"
 	"github.com/dailyburn/ratchet"
 	"github.com/dailyburn/ratchet/data"
-	"github.com/dailyburn/ratchet/logger"
 	"github.com/dailyburn/ratchet/processors"
 )
 
@@ -39,11 +39,11 @@ func ExampleNewBranchingPipeline() {
 	hello := processors.NewIoReader(strings.NewReader("Hello world"))
 	hola := processors.NewIoReader(strings.NewReader("Hola mundo"))
 	bonjour := processors.NewIoReader(strings.NewReader("Bonjour monde"))
-	upperCaser := processors.NewFuncTransformer(func(d data.JSON) data.JSON {
-		return data.JSON(strings.ToUpper(string(d)))
+	upperCaser := processors.NewFuncTransformer(func(d data.Payload) data.Payload {
+		return data.Payload(strings.ToUpper(string(d)))
 	})
-	lowerCaser := processors.NewFuncTransformer(func(d data.JSON) data.JSON {
-		return data.JSON(strings.ToLower(string(d)))
+	lowerCaser := processors.NewFuncTransformer(func(d data.Payload) data.Payload {
+		return data.Payload(strings.ToLower(string(d)))
 	})
 	helloMatcher := processors.NewRegexpMatcher("HELLO")
 	stdout := processors.NewIoWriter(os.Stdout)
