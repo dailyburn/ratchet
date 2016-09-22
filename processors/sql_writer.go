@@ -41,6 +41,7 @@ func NewSQLWriter(db *sql.DB, tableName string) *SQLWriter {
 	return &SQLWriter{writeDB: db, TableName: tableName, OnDupKeyUpdate: true}
 }
 
+// ProcessData defers to util.SQLInsertData
 func (s *SQLWriter) ProcessData(d data.JSON, outputChan chan data.JSON, killChan chan error) {
 	// handle panics a bit more gracefully
 	defer func() {
@@ -67,6 +68,7 @@ func (s *SQLWriter) ProcessData(d data.JSON, outputChan chan data.JSON, killChan
 	logger.Info("SQLWriter: Write complete")
 }
 
+// Finish - see interface for documentation.
 func (s *SQLWriter) Finish(outputChan chan data.JSON, killChan chan error) {
 }
 
@@ -74,7 +76,7 @@ func (s *SQLWriter) String() string {
 	return "SQLWriter"
 }
 
-// See ConcurrentDataProcessor
+// Concurrency defers to ConcurrentDataProcessor
 func (s *SQLWriter) Concurrency() int {
 	return s.ConcurrencyLevel
 }

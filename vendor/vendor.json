@@ -147,10 +147,11 @@
 			"revisionTime": "2016-05-26T20:48:27Z"
 		},
 		{
-			"checksumSHA1": "x6Yi8NVV3K7zCgY1X5XOlfLW+Rw=",
+			"checksumSHA1": "fQ/nLjromrQvlAXVNCohFssoVp8=",
+			"origin": "github.com/dailyburn/ratchet/vendor/github.com/dailyburn/bigquery/client",
 			"path": "github.com/dailyburn/bigquery/client",
-			"revision": "af320ce74b6e62ad6d284031dedf2f7dfd6784d6",
-			"revisionTime": "2016-05-24T17:37:20Z"
+			"revision": "d6a62be95f73c0f27555bff1b87b036733c311c1",
+			"revisionTime": "2016-08-26T20:53:29Z"
 		},
 		{
 			"checksumSHA1": "gxDxOTjSjdB7CrvViAWL/H6s7Ac=",

@@ -7,9 +7,9 @@ import (
 	"github.com/dailyburn/ratchet/util"
 )
 
-// By default, we will not compress data before sending it upstream to S3. Set the `Compress`
-// flag to true to use gzip compression before storing in S3 (if this flag is set to true,
-// ".gz" will automatically be appended to the key name specified).
+// S3Writer sends data upstream to S3. By default, we will not compress data before sending it.
+// Set the `Compress` flag to true to use gzip compression before storing in S3 (if this flag is
+// set to true, ".gz" will automatically be appended to the key name specified).
 //
 // By default, we will separate each iteration of data sent to `ProcessData` with a new line
 // when we piece back together to send to S3. Change the `LineSeparator` attribute to change
@@ -23,6 +23,7 @@ type S3Writer struct {
 	key           string
 }
 
+// NewS3Writer instaniates a new S3Writer
 func NewS3Writer(awsID, awsSecret, awsRegion, bucket, key string) *S3Writer {
 	w := S3Writer{bucket: bucket, key: key, LineSeparator: "\n", Compress: false}
 
@@ -33,10 +34,12 @@ func NewS3Writer(awsID, awsSecret, awsRegion, bucket, key string) *S3Writer {
 	return &w
 }
 
+// ProcessData enqueues all received data
 func (w *S3Writer) ProcessData(d data.JSON, outputChan chan data.JSON, killChan chan error) {
 	w.data = append(w.data, string(d))
 }
 
+// Finish writes all enqueued data to S3, defering to util.WriteS3Object
 func (w *S3Writer) Finish(outputChan chan data.JSON, killChan chan error) {
 	util.WriteS3Object(w.data, w.config, w.bucket, w.key, w.LineSeparator, w.Compress)
 }

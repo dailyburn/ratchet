@@ -23,6 +23,7 @@ func NewRegexpMatcher(pattern string) *RegexpMatcher {
 	return &RegexpMatcher{pattern, false}
 }
 
+// ProcessData sends the data it receives to the outputChan only if it matches the supplied regex
 func (r *RegexpMatcher) ProcessData(d data.JSON, outputChan chan data.JSON, killChan chan error) {
 	matches, err := regexp.Match(r.pattern, d)
 	util.KillPipelineIfErr(err, killChan)
@@ -34,6 +35,7 @@ func (r *RegexpMatcher) ProcessData(d data.JSON, outputChan chan data.JSON, kill
 	}
 }
 
+// Finish - see interface for documentation.
 func (r *RegexpMatcher) Finish(outputChan chan data.JSON, killChan chan error) {
 }
 

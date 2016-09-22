@@ -1,5 +1,5 @@
 /*
-Ratchet is a library for performing data pipeline / ETL tasks in Go.
+Package ratchet is a library for performing data pipeline / ETL tasks in Go.
 
 The main construct in Ratchet is Pipeline. A Pipeline has a series of
 PipelineStages, which will each perform some type of data processing, and

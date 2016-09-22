@@ -59,6 +59,8 @@ func NewSftpReaderByClient(client *sftp.Client, path string) *SftpReader {
 	return &r
 }
 
+// ProcessData optionally walks through the tree to send each object separately, or sends the single
+// object upstream
 func (r *SftpReader) ProcessData(d data.JSON, outputChan chan data.JSON, killChan chan error) {
 	r.ensureInitialized(killChan)
 	if r.Walk {
@@ -75,8 +77,8 @@ func (r *SftpReader) Finish(outputChan chan data.JSON, killChan chan error) {
 	}
 }
 
-// As the remote client itself is not exposed, you can manually close its connection
-// through this func
+// CloseClient allows you to manually close the connection to the remote client (as the remote client
+// itself is not exported)
 func (r *SftpReader) CloseClient() {
 	r.client.Close()
 }

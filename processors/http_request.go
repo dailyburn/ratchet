@@ -24,6 +24,7 @@ func NewHTTPRequest(method, url string, body io.Reader) (*HTTPRequest, error) {
 	return &HTTPRequest{Request: req, Client: &http.Client{}}, err
 }
 
+// ProcessData sends data to outputChan if the response body is not null
 func (r *HTTPRequest) ProcessData(d data.JSON, outputChan chan data.JSON, killChan chan error) {
 	resp, err := r.Client.Do(r.Request)
 	util.KillPipelineIfErr(err, killChan)
@@ -35,6 +36,7 @@ func (r *HTTPRequest) ProcessData(d data.JSON, outputChan chan data.JSON, killCh
 	}
 }
 
+// Finish - see interface for documentation.
 func (r *HTTPRequest) Finish(outputChan chan data.JSON, killChan chan error) {
 }
 

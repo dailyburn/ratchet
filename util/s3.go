@@ -88,6 +88,7 @@ func DeleteS3Objects(client *s3.S3, bucket string, objKeys []string) (*s3.Delete
 	return client.DeleteObjects(params)
 }
 
+// WriteS3Object writes the data to the given key, optionally compressing it first
 func WriteS3Object(data []string, config *aws.Config, bucket string, key string, lineSeparator string, compress bool) (string, error) {
 	var reader io.Reader
 

@@ -8,6 +8,7 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
+// SftpParameters is used for storing connection parameters for later executing sftp commands
 type SftpParameters struct {
 	Server      string
 	Username    string
@@ -15,15 +16,17 @@ type SftpParameters struct {
 	AuthMethods []ssh.AuthMethod
 }
 
+// SftpPath is a simple struct for storing the full path of an object
 type SftpPath struct {
 	Path string `json:"path,omitempty"`
 }
 
+// FileName defers to filepath.Base
 func (t SftpPath) FileName() string {
 	return filepath.Base(t.Path)
 }
 
-// Set up and return the sftp client
+// SftpClient sets up and return the client
 func SftpClient(server string, username string, authMethod []ssh.AuthMethod, opts ...func(*sftp.Client) error) (*sftp.Client, error) {
 	var client *sftp.Client
 
@@ -40,7 +43,7 @@ func SftpClient(server string, username string, authMethod []ssh.AuthMethod, opt
 	return sftp.NewClient(conn, opts...)
 }
 
-// Generate an ssh.AuthMethod given the path of a private key
+// SftpKeyAuth generates an ssh.AuthMethod given the path of a private key
 func SftpKeyAuth(privateKeyPath string) (auth ssh.AuthMethod, err error) {
 	privateKey, err := ioutil.ReadFile(privateKeyPath)
 	if err != nil {

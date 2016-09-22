@@ -58,7 +58,7 @@ func (w *SftpWriter) Finish(outputChan chan data.JSON, killChan chan error) {
 	}
 }
 
-func (f *SftpWriter) String() string {
+func (w *SftpWriter) String() string {
 	return "SftpWriter"
 }
 

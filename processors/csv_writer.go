@@ -31,10 +31,12 @@ func NewCSVWriter(w io.Writer) *CSVWriter {
 	}
 }
 
+// ProcessData defers to util.CSVProcess
 func (w *CSVWriter) ProcessData(d data.JSON, outputChan chan data.JSON, killChan chan error) {
 	util.CSVProcess(&w.Parameters, d, outputChan, killChan)
 }
 
+// Finish - see interface for documentation.
 func (w *CSVWriter) Finish(outputChan chan data.JSON, killChan chan error) {
 }
 

@@ -9,7 +9,7 @@ import (
 	"github.com/jlaffaye/ftp"
 )
 
-// FtpWriter type represents an ftp writter processer
+// FtpWriter type represents an ftp writter processor
 type FtpWriter struct {
 	ftpFilepath   string
 	conn          *ftp.ServerConn

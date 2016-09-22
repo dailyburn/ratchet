@@ -10,8 +10,7 @@ import (
 
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
-	//"code.google.com/p/goauth2/oauth"
-	//"code.google.com/p/goauth2/oauth/jwt"
+
 	bigquery "github.com/dailyburn/google-api-go-client-bigquery/bigquery/v2"
 )
 
@@ -19,6 +18,8 @@ const authURL = "https://accounts.google.com/o/oauth2/auth"
 const tokenURL = "https://accounts.google.com/o/oauth2/token"
 
 const defaultPageSize = 5000
+const defaultRequestTimeout = 60000
+const maxRequestRetry = 5
 
 // Client a big query client instance
 type Client struct {
@@ -29,6 +30,7 @@ type Client struct {
 	tempTableName     string
 	flattenResults    bool
 	PrintDebug        bool
+	RequestTimeout    int64 // how long (in milliseconds) to try to create requests for large data (not a query timeout); defaults to 60000
 }
 
 // Data is a containing type used for Async data response handling including Headers, Rows and an Error that will be populated in the event of an Error querying
@@ -41,7 +43,8 @@ type Data struct {
 // New instantiates a new client with the given params and return a reference to it
 func New(pemPath string, options ...func(*Client) error) *Client {
 	c := Client{
-		pemPath: pemPath,
+		pemPath:        pemPath,
+		RequestTimeout: defaultRequestTimeout,
 	}
 
 	c.PrintDebug = false
@@ -193,6 +196,9 @@ func (c *Client) stdPagedQuery(service *bigquery.Service, pageSize int, dataset,
 
 	qr, err := service.Jobs.Query(project, query).Do()
 
+	// extract the initial rows that have already been returned with the Query
+	headers, rows := c.headersAndRows(qr.Schema, qr.Rows)
+
 	if err != nil {
 		c.printDebug("Error loading query: ", err)
 		if dataChan != nil {
@@ -202,7 +208,7 @@ func (c *Client) stdPagedQuery(service *bigquery.Service, pageSize int, dataset,
 		return nil, nil, err
 	}
 
-	return c.processPagedQuery(qr.JobReference, qr.PageToken, dataChan)
+	return c.processPagedQuery(qr.JobReference, qr.PageToken, dataChan, headers, rows)
 }
 
 // largeDataPagedQuery builds a job and inserts it into the job queue allowing the flexibility to set the custom AllowLargeResults flag for the job
@@ -249,7 +255,31 @@ func (c *Client) largeDataPagedQuery(service *bigquery.Service, pageSize int, da
 		return nil, nil, jerr
 	}
 
-	qr, err := service.Jobs.GetQueryResults(project, runningJob.JobReference.JobId).Do()
+	var qr *bigquery.GetQueryResultsResponse
+	var rows [][]interface{}
+	var headers []string
+	var err error
+
+	// Periodically, job references are not created, but errors are also not thrown.
+	// In this scenario, retry up to 5 times to get a job reference before giving up.
+	for i := 1; ; i++ {
+		r := service.Jobs.GetQueryResults(project, runningJob.JobReference.JobId)
+		r.TimeoutMs(c.RequestTimeout)
+		qr, err = r.Do()
+
+		headers, rows = c.headersAndRows(qr.Schema, qr.Rows)
+
+		if i >= maxRequestRetry || qr.JobReference != nil || err != nil {
+			if i > 1 {
+				c.printDebug("Took %v tries to get a job reference", i)
+			}
+			break
+		}
+	}
+
+	if err == nil && qr.JobReference == nil {
+		err = fmt.Errorf("missing job reference")
+	}
 
 	if err != nil {
 		c.printDebug("Error loading query: ", err)
@@ -259,7 +289,7 @@ func (c *Client) largeDataPagedQuery(service *bigquery.Service, pageSize int, da
 		return nil, nil, err
 	}
 
-	rows, headers, err := c.processPagedQuery(qr.JobReference, qr.PageToken, dataChan)
+	rows, headers, err = c.processPagedQuery(qr.JobReference, qr.PageToken, dataChan, headers, rows)
 	c.printDebug("largeDataPagedQuery completed in ", time.Now().Sub(ts).Seconds(), "s")
 
 	return rows, headers, err
@@ -283,14 +313,15 @@ func (c *Client) pagedQuery(pageSize int, dataset, project, queryStr string, dat
 	return c.stdPagedQuery(service, pageSize, dataset, project, queryStr, dataChan)
 }
 
-func (c *Client) processPagedQuery(jobRef *bigquery.JobReference, pageToken string, dataChan chan Data) ([][]interface{}, []string, error) {
-	var headers []string
-	rows := [][]interface{}{}
+func (c *Client) processPagedQuery(jobRef *bigquery.JobReference, pageToken string, dataChan chan Data, headers []string, rows [][]interface{}) ([][]interface{}, []string, error) {
+	if len(rows) > 0 {
+		dataChan <- Data{Headers: headers, Rows: rows}
+	}
 
 	resultChan := make(chan [][]interface{})
 	headersChan := make(chan []string)
 
-	go c.pageOverJob(0, jobRef, pageToken, resultChan, headersChan)
+	go c.pageOverJob(len(rows), jobRef, pageToken, resultChan, headersChan)
 
 L:
 	for {
@@ -405,6 +436,10 @@ func (c *Client) SyncQuery(dataset, project, queryStr string, maxResults int64) 
 }
 
 func (c *Client) headersAndRows(bqSchema *bigquery.TableSchema, bqRows []*bigquery.TableRow) ([]string, [][]interface{}) {
+	if bqSchema == nil || bqRows == nil {
+		return nil, nil
+	}
+
 	c.printDebug("headersAndRows starting")
 	ts := time.Now()
 	headers := make([]string, len(bqSchema.Fields))

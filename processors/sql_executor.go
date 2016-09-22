@@ -18,7 +18,6 @@ import (
 // The dynamic SQL generation is implemented by passing in a "sqlGenerator"
 // function to NewDynamicSQLExecutor. This allows you to write whatever
 // code is needed to generate SQL based upon data flowing through the pipeline.
-
 type SQLExecutor struct {
 	readDB       *sql.DB
 	query        string
@@ -35,6 +34,7 @@ func NewDynamicSQLExecutor(dbConn *sql.DB, sqlGenerator func(data.JSON) (string,
 	return &SQLExecutor{readDB: dbConn, sqlGenerator: sqlGenerator}
 }
 
+// ProcessData runs the SQL statements, deferring to util.ExecuteSQLQuery
 func (s *SQLExecutor) ProcessData(d data.JSON, outputChan chan data.JSON, killChan chan error) {
 	// handle panics a bit more gracefully
 	defer func() {

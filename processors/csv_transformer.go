@@ -27,10 +27,12 @@ func NewCSVTransformer() *CSVTransformer {
 	}
 }
 
+// ProcessData defers to util.CSVProcess
 func (w *CSVTransformer) ProcessData(d data.JSON, outputChan chan data.JSON, killChan chan error) {
 	util.CSVProcess(&w.Parameters, d, outputChan, killChan)
 }
 
+// Finish - see interface for documentation.
 func (w *CSVTransformer) Finish(outputChan chan data.JSON, killChan chan error) {
 }
 

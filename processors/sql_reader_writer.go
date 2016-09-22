@@ -35,14 +35,15 @@ func NewDynamicSQLReaderWriter(readConn *sql.DB, writeConn *sql.DB, sqlGenerator
 	return s
 }
 
+// ProcessData uses SQLReader methods for processing data - this works via composition
 func (s *SQLReaderWriter) ProcessData(d data.JSON, outputChan chan data.JSON, killChan chan error) {
-	// Using SQLReader methods for processing data - this works via composition.
 	s.ForEachQueryData(d, killChan, func(d data.JSON) {
 		s.SQLWriter.ProcessData(d, outputChan, killChan)
 		outputChan <- d
 	})
 }
 
+// Finish - see interface for documentation.
 func (s *SQLReaderWriter) Finish(outputChan chan data.JSON, killChan chan error) {
 }
 
@@ -50,7 +51,7 @@ func (s *SQLReaderWriter) String() string {
 	return "SQLReaderWriter"
 }
 
-// See ConcurrentDataProcessor
+// Concurrency defers to ConcurrentDataProcessor
 func (s *SQLReaderWriter) Concurrency() int {
 	return s.ConcurrencyLevel
 }

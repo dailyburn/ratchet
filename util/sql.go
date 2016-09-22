@@ -167,6 +167,7 @@ func sendErr(err error, dataChan chan data.JSON) {
 	dataChan <- []byte(`{"Error":"` + err.Error() + `"}`)
 }
 
+// ExecuteSQLQuery allows you to execute arbitrary SQL statements
 func ExecuteSQLQuery(db *sql.DB, query string) error {
 	stmt, err := db.Prepare(query)
 	if err != nil {
@@ -207,9 +208,9 @@ func SQLInsertData(db *sql.DB, d data.JSON, tableName string, onDupKeyUpdate boo
 			}
 		}
 		return nil
-	} else {
-		return insertObjects(db, objects, tableName, onDupKeyUpdate, onDupKeyFields)
 	}
+
+	return insertObjects(db, objects, tableName, onDupKeyUpdate, onDupKeyFields)
 }
 
 func insertObjects(db *sql.DB, objects []map[string]interface{}, tableName string, onDupKeyUpdate bool, onDupKeyFields []string) error {

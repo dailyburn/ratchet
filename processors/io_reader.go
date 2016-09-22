@@ -22,6 +22,7 @@ func NewIoReader(reader io.Reader) *IoReader {
 	return &IoReader{Reader: reader, LineByLine: true, BufferSize: 1024}
 }
 
+// ProcessData overwrites the reader if the content is Gzipped, then defers to ForEachData
 func (r *IoReader) ProcessData(d data.JSON, outputChan chan data.JSON, killChan chan error) {
 	if r.Gzipped {
 		gzReader, err := gzip.NewReader(r.Reader)
@@ -33,9 +34,12 @@ func (r *IoReader) ProcessData(d data.JSON, outputChan chan data.JSON, killChan 
 	})
 }
 
+// Finish - see interface for documentation.
 func (r *IoReader) Finish(outputChan chan data.JSON, killChan chan error) {
 }
 
+// ForEachData either reads by line or by buffered stream, sending the data
+// back to the anonymous func that ultimately shoves it onto the outputChan
 func (r *IoReader) ForEachData(killChan chan error, foo func(d data.JSON)) {
 	if r.LineByLine {
 		r.scanLines(killChan, foo)

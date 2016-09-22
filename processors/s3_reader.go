@@ -47,6 +47,11 @@ func NewS3PrefixReader(awsID, awsSecret, awsRegion, bucket, prefix string) *S3Re
 	return r
 }
 
+// ProcessData reads an entire directory if a prefix is provided (sending each file in that
+// directory to outputChan), or just sends the single file to outputChan if a complete
+// file path is provided (not a prefix/directory).
+//
+// It optionally deletes all processed objects once the contents have been sent to outputChan
 func (r *S3Reader) ProcessData(d data.JSON, outputChan chan data.JSON, killChan chan error) {
 	if r.prefix != "" {
 		logger.Debug("S3Reader: process data for prefix", r.prefix)
@@ -72,8 +77,8 @@ func (r *S3Reader) ProcessData(d data.JSON, outputChan chan data.JSON, killChan 
 	}
 }
 
+// Finish - see interface for documentation.
 func (r *S3Reader) Finish(outputChan chan data.JSON, killChan chan error) {
-	// Nothing to do
 }
 
 func (r *S3Reader) processObject(obj *s3.GetObjectOutput, outputChan chan data.JSON, killChan chan error) {

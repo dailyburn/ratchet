@@ -13,14 +13,17 @@ type FuncTransformer struct {
 	ConcurrencyLevel int    // See ConcurrentDataProcessor
 }
 
+//NewFuncTransformer instantiates a new instance of func transformer
 func NewFuncTransformer(transform func(d data.JSON) data.JSON) *FuncTransformer {
 	return &FuncTransformer{transform: transform}
 }
 
+// ProcessData runs the supplied func and sends the returned value to outputChan
 func (t *FuncTransformer) ProcessData(d data.JSON, outputChan chan data.JSON, killChan chan error) {
 	outputChan <- t.transform(d)
 }
 
+// Finish - see interface for documentation.
 func (t *FuncTransformer) Finish(outputChan chan data.JSON, killChan chan error) {
 }
 
@@ -31,7 +34,7 @@ func (t *FuncTransformer) String() string {
 	return "FuncTransformer"
 }
 
-// See ConcurrentSee ConcurrentDataProcessor
+// Concurrency defers to ConcurrentDataProcessor
 func (t *FuncTransformer) Concurrency() int {
 	return t.ConcurrencyLevel
 }

@@ -43,7 +43,7 @@ func NewPipeline(processors ...DataProcessor) *Pipeline {
 }
 
 // NewBranchingPipeline creates a new pipeline ready to run the
-// given PipelineLayout, which can accomodate branching/merging
+// given PipelineLayout, which can accommodate branching/merging
 // between stages each containing variable number of DataProcessors.
 // See the ratchet package documentation for code examples and diagrams.
 func NewBranchingPipeline(layout *PipelineLayout) *Pipeline {

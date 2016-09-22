@@ -26,6 +26,8 @@ func NewIoReaderWriter(reader io.Reader, writer io.Writer) *IoReaderWriter {
 	return &r
 }
 
+// ProcessData grabs data from IoReader.ForEachData, then sends it to IoWriter.ProcessData in addition
+// to sending it upstream on the outputChan
 func (r *IoReaderWriter) ProcessData(d data.JSON, outputChan chan data.JSON, killChan chan error) {
 	r.ForEachData(killChan, func(d data.JSON) {
 		r.IoWriter.ProcessData(d, outputChan, killChan)
@@ -33,6 +35,7 @@ func (r *IoReaderWriter) ProcessData(d data.JSON, outputChan chan data.JSON, kil
 	})
 }
 
+// Finish - see interface for documentation.
 func (r *IoReaderWriter) Finish(outputChan chan data.JSON, killChan chan error) {
 }
 

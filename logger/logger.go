@@ -8,6 +8,7 @@ import (
 	"runtime"
 )
 
+// Ordering the importance of log information. See LogLevel below.
 const (
 	LevelDebug = iota
 	LevelInfo
@@ -22,7 +23,7 @@ type RatchetNotifier interface {
 	RatchetNotify(lvl int, trace []byte, v ...interface{})
 }
 
-// RatchetNotifier can be set to receive log events in your external
+// Notifier can be set to receive log events in your external
 // implementation code. Useful for doing custom alerting, etc.
 var Notifier RatchetNotifier
 

@@ -60,12 +60,14 @@ func NewDynamicBigQueryReader(config *BigQueryConfig, sqlGenerator func(data.JSO
 	return r
 }
 
+// ProcessData defers to ForEachQueryData
 func (r *BigQueryReader) ProcessData(d data.JSON, outputChan chan data.JSON, killChan chan error) {
 	r.ForEachQueryData(d, killChan, func(d data.JSON) {
 		outputChan <- d
 	})
 }
 
+// Finish - see interface for documentation.
 func (r *BigQueryReader) Finish(outputChan chan data.JSON, killChan chan error) {
 }
 
@@ -121,7 +123,7 @@ func (r *BigQueryReader) String() string {
 	return "BigQueryReader"
 }
 
-// See ConcurrentDataProcessor
+// Concurrency defers to ConcurrentDataProcessor
 func (r *BigQueryReader) Concurrency() int {
 	return r.ConcurrencyLevel
 }

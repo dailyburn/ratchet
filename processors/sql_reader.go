@@ -89,7 +89,7 @@ func (s *SQLReader) String() string {
 	return "SQLReader"
 }
 
-// See ConcurrentDataProcessor
+// Concurrency defers to ConcurrentDataProcessor
 func (s *SQLReader) Concurrency() int {
 	return s.ConcurrencyLevel
 }
