@@ -29,6 +29,7 @@ type CSVParameters struct {
 	Header        []string
 	SendUpstream  bool
 	QuoteEscape   string
+	Comma         rune
 }
 
 // CSVProcess writes the contents to the file and optionally sends the written bytes
@@ -62,6 +63,10 @@ func CSVProcess(params *CSVParameters, d data.JSON, outputChan chan data.JSON, k
 			row = append(row, CSVString(v))
 		}
 		rows = append(rows, row)
+	}
+
+	if params.Comma != 0 {
+		params.Writer.Comma = params.Comma
 	}
 
 	if params.SendUpstream {
