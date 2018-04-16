@@ -51,7 +51,7 @@ func (s *SQLReader) ProcessData(d data.JSON, outputChan chan data.JSON, killChan
 
 // ForEachQueryData handles generating the SQL (in case of dynamic mode),
 // running the query and retrieving the data in data.JSON format, and then
-// passing the results back witih the function call to forEach.
+// passing the results back within the function call to forEach.
 func (s *SQLReader) ForEachQueryData(d data.JSON, killChan chan error, forEach func(d data.JSON)) {
 	sql := ""
 	var err error
