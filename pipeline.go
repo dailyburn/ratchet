@@ -238,10 +238,10 @@ func (p *Pipeline) Stats() string {
 
 // Stats returns a map listing the stats
 // gathered for each stage executed.
-func (p *Pipeline) GetStats() map[int]interface{} {
-	stats := make(map[int]interface{})
+func (p *Pipeline) GetStats() map[int]map[string]map[string]interface{} {
+	stats := make(map[int]map[string]map[string]interface{})
 	for n, stage := range p.layout.stages {
-		stagestats := make(map[string]interface{})
+		stagestats := make(map[string]map[string]interface{})
 		for _, dp := range stage.processors {
 			dpstats := make(map[string]interface{})
 			dp.executionStat.calculate()
