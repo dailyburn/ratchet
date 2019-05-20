@@ -2,9 +2,11 @@
 package logger
 
 import (
+	"fmt"
 	"io"
 	"log"
 	"os"
+	"path"
 	"runtime"
 )
 
@@ -15,6 +17,12 @@ const (
 	LevelError
 	LevelStatus
 	LevelSilent
+)
+
+const (
+	Lwithoutfile = 0
+	Llongfile    = log.Llongfile
+	Lshortfile   = log.Lshortfile
 )
 
 // RatchetNotifier is an interface for receiving log events. See the
@@ -31,31 +39,38 @@ var Notifier RatchetNotifier
 // logger.LevelDebug, logger.LevelInfo, logger.LevelError, logger.LevelStatus, or logger.LevelSilent
 var LogLevel = LevelInfo
 
+// LoggerFlag can be set to one of:
+// logger.Lwithoutfile, logger.Llongfile, logger.Lshortfile
+//
+// This will control if file information is prepended to logs
+// See https://golang.org/pkg/log/#pkg-constants
+var LoggerFlag = Lwithoutfile
+
 var defaultLogger = log.New(os.Stdout, "", log.LstdFlags)
 
 // Debug logs output when LogLevel is set to at least Debug level
 func Debug(v ...interface{}) {
-	logit(LevelDebug, v)
+	logit(LevelDebug, v...)
 	if Notifier != nil {
-		Notifier.RatchetNotify(LevelDebug, nil, v)
+		Notifier.RatchetNotify(LevelDebug, nil, v...)
 	}
 }
 
 // Info logs output when LogLevel is set to at least Info level
 func Info(v ...interface{}) {
-	logit(LevelInfo, v)
+	logit(LevelInfo, v...)
 	if Notifier != nil {
-		Notifier.RatchetNotify(LevelInfo, nil, v)
+		Notifier.RatchetNotify(LevelInfo, nil, v...)
 	}
 }
 
 // Error logs output when LogLevel is set to at least Error level
 func Error(v ...interface{}) {
-	logit(LevelError, v)
+	logit(LevelError, v...)
 	if Notifier != nil {
 		trace := make([]byte, 4096)
 		runtime.Stack(trace, true)
-		Notifier.RatchetNotify(LevelError, trace, v)
+		Notifier.RatchetNotify(LevelError, trace, v...)
 	}
 }
 
@@ -63,28 +78,48 @@ func Error(v ...interface{}) {
 // but doesn't send the stack trace to Notifier. This is useful only when
 // using a RatchetNotifier implementation.
 func ErrorWithoutTrace(v ...interface{}) {
-	logit(LevelError, v)
+	logit(LevelError, v...)
 	if Notifier != nil {
-		Notifier.RatchetNotify(LevelError, nil, v)
+		Notifier.RatchetNotify(LevelError, nil, v...)
 	}
 }
 
 // Status logs output when LogLevel is set to at least Status level
 // Status output is high-level status events like stages starting/completing.
 func Status(v ...interface{}) {
-	logit(LevelStatus, v)
+	logit(LevelStatus, v...)
 	if Notifier != nil {
-		Notifier.RatchetNotify(LevelStatus, nil, v)
+		Notifier.RatchetNotify(LevelStatus, nil, v...)
 	}
+}
+
+func WithPrefix(v ...interface{}) []interface{} {
+	if LoggerFlag != Llongfile && LoggerFlag != Lshortfile {
+		return v
+	}
+
+	_, file, line, ok := runtime.Caller(3)
+
+	if !ok {
+		return v
+	}
+
+	if LoggerFlag == Lshortfile {
+		file = path.Base(file)
+	}
+
+	prefix := fmt.Sprintf("%v:%v", file, line)
+	return append([]interface{}{prefix}, v...)
 }
 
 func logit(lvl int, v ...interface{}) {
 	if lvl >= LogLevel {
+		v = WithPrefix(v...)
 		defaultLogger.Println(v...)
 	}
 }
 
-// SetLogfile can be used to log to a file as well as Stdoud.
+// SetLogfile can be used to log to a file as well as Stdout.
 func SetLogfile(filepath string) {
 	f, err := os.OpenFile(filepath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
