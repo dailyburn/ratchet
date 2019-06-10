@@ -235,3 +235,28 @@ func (p *Pipeline) Stats() string {
 	}
 	return o
 }
+
+// Stats returns a map listing the stats
+// gathered for each stage executed.
+func (p *Pipeline) GetStats() map[int]interface{} {
+	stats := make(map[int]interface{})
+	for n, stage := range p.layout.stages {
+		stagestats := make(map[string]interface{})
+		for _, dp := range stage.processors {
+			dpstats := make(map[string]interface{})
+			dp.executionStat.calculate()
+			dpstats["totalExecutionTime"] = dp.totalExecutionTime
+			dpstats["avgExecutionTime"] = dp.avgExecutionTime
+			dpstats["dataSentCounter"] = dp.dataSentCounter
+			dpstats["dataReceivedCounter"] = dp.dataReceivedCounter
+			dpstats["totalBytesSent"] = dp.totalBytesSent
+			dpstats["avgBytesSent"] = dp.avgBytesSent
+			dpstats["totalBytesReceived"] = dp.totalBytesReceived
+			dpstats["avgBytesReceived"] = dp.avgBytesReceived
+			dpname := fmt.Sprintf("%v", dp)
+			stagestats[dpname] = dpstats
+		}
+		stats[n] = stagestats
+	}
+	return stats
+}
