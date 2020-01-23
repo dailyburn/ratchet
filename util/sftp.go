@@ -27,7 +27,7 @@ func (t SftpPath) FileName() string {
 }
 
 // SftpClient sets up and return the client
-func SftpClient(server string, username string, authMethod []ssh.AuthMethod, opts ...func(*sftp.Client) error) (*sftp.Client, error) {
+func SftpClient(server string, username string, authMethod []ssh.AuthMethod, opts ...sftp.ClientOption) (*sftp.Client, error) {
 	var client *sftp.Client
 
 	config := &ssh.ClientConfig{
